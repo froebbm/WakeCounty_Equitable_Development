@@ -1,5 +1,7 @@
 #### SetUp ####
-source('~/GitHub/WakeCounty_Affordable_Housing/scripts/SetUp.R', echo = TRUE)
+dir = "C:/Users/brian/OneDrive/Documents/GitHub/WakeCounty_Affordable_Housing"
+setwd(dir)
+source('./scripts/SetUp.R', echo = TRUE)
 #### Functions ####
 url_shp_to_sf <- function(URL) {
   
@@ -26,9 +28,12 @@ Parcel_URL = paste0('ftp://wakeftp.co.wake.nc.us/gis/Webdownloads/',
                     'SHAPEFILES/Wake_Property_2020_10.zip')
 Parcels  = url_shp_to_spdf(Parcel_URL)
 Parcels  = st_make_valid(Parcels)
+Parcels  = subset(Parcels, st_is_valid(Parcels))
+
 out_path = "./data/Parcels_October_2020"
 write_sf(Parcels, paste0(out_path, '.shp'))
 write_rds(Parcels, paste0(out_path, '.rds'))
+
 
 City_URL = paste0('ftp://wakeftp.co.wake.nc.us/gis/Webdownloads/',
                   'SHAPEFILES/Wake_Jurisdictions_2020_10.zip')
