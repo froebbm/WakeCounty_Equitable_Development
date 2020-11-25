@@ -1,0 +1,12 @@
+name: "affordablehousing"
+output_dir: "."
+navbar:
+  type: inverse
+  title: "Wake County Affordable Housing"
+  left:
+    - text: "Home"
+      href: index.html
+      
+output:
+  html_document:
+    theme: journal

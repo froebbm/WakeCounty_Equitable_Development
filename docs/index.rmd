@@ -1,0 +1,99 @@
+---
+title: "Affordable Housing In Wake County"
+date: "Last Update on: `r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(tmap)
+library(sf)
+library(viridis)
+library(kableExtra)
+options(scipen=999)
+tmap_mode("view")
+map_data  <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/map_data.rds") 
+tab_data  <- read_csv("~/GitHub/WakeCounty_Affordable_Housing/data/Affordable_Area_by_Town.csv")
+parcels   <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/Parcels_October_2020.rds")
+parcels$area       <- as.numeric(st_area(parcels))
+my_pal    <- RColorBrewer::brewer.pal(10, "Purples") 
+```
+
+# Land Suitable for Supportive Housing
+
+```{r Map, out.width="100%"}
+map_data %>% 
+  tm_shape() + tm_polygons(col = "affordable_area",
+                           n = 10,
+                           palette = my_pal,
+                           lwd = 0.1,
+                           title = "Square Footage")
+```
+
+
+```{r Table}
+tab_data %>% 
+  select(JURISDICTI, affordable_area) %>% 
+  mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
+                              JURISDICTI, 
+                              str_to_title(JURISDICTI))) %>% 
+  kable(col.names = c("City", "Supportive Housing Square Footage")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  scroll_box(height = "300px")
+  
+```
+<br />
+
+# Importance of Supportive Housing
+
+Wake County and its encompassed communities are growing rapidly. It is widely considered to be one of the [fastest growing areas](http://www.wakegov.com/data/bythenumbers/Pages/default.aspx#:~:text=Wake%20County%20gained%20an%20average,population%20growth%20in%20Wake%20County) in the state of NC. This growth is exciting- but only if managed in such a way that we protect our most vulnerable citizens. With rapid growth comes rapid increase of [housing costs, gentrification, and displacement](https://www.urbandisplacement.org/sites/default/files/images/udp_research_brief_052316.pdf).
+
+Despite this growth, there remains `r nrow(subset(parcels, parcels$LAND_CLASS == "VAC"))` vacant parcels throughout the county, representing a total area of `r subset(parcels, parcels$LAND_CLASS == "VAC") %>% st_drop_geometry() %>%  select(area) %>% sum(na.rm = TRUE) %>% round()` square feet. This unused land its ripe for large developers to swoop in and turn into more things the community does not need, such as luxury apartment complexes, high end shopping centers, and unaffordable grocery stores. Meanwhile the number of unhoused individuals continues to [skyrocket](https://www.raleighrescue.org/the-problem/community-need/), with waiting lists for housing vouchers in the area remains [years long](https://affordablehousingonline.com/housing-authority/North-Carolina/Raleigh-Housing-Authority/NC002#:~:text=The%20average%20voucher%20holder%20has,on%20the%20waiting%20list1). 
+
+In recent years, the county has done a considerable amount towards reducing homelessness with its adaptation of a more housing first centered model, a continuum of care, and a more centralized system to allow unhoused individuals to be assessed by the [VISPDAT](https://www.cthmis.com/info/detail/vi-spdat/13) and placed on waiting lists for supportive and low barrier housing. A 5-year evaluation on this approach’s effectiveness in Charlotte Mecklenburg country revealed this to be a promising paradigm for someday ending homelessness all together. You can read the full report [here](https://mecklenburghousingdata.org/housing-first-charlotte-mecklenburg/?fbclid=IwAR3tw7dpvzc4nPiGfUNTVp5--mZdt7A8PEA0VTT2CNMvlZYu1njkd0jpfX4). 
+
+To continue to build on Wake County’s ability to serve its most vulnerable through its housing programs already in place, we are recommending an increase in investment in supportive housing communities via utilizing the unused land throughout wake county. We are proposing the county and municipalities appropriate a portion of this vacant land and dedicate it solely to supportive housing communities within the cities where said parcels exist.
+
+Funding for this can come from a variety of sources, for which we offer the following suggestions: 
+
+- Working in partnership with city managers within the county to allocate space in their budgets towards land within their city limits. There has been considerable pressure from local activists to de-invest from prisons and police departments and reinvest in community care. This would be considerable option to meet those demands- the Charlotte Mecklenburg report showed a high reduction in crime and recidivism within the criminal justice system when individuals are housed. 
+
+- Exploring all available 2021 HUD Grants, the current primary source of funding for supportive housing communities 
+
+- A modest property tax increase on homes valued at 1 million dollars or more
+
+As we look towards the future of our community, please consider all options to create an inclusive and just community for all, rather than another American city descending into deeper class divides and gentrification. We are open to working further with you on this to reach viable solutions.
+
+
+## Contact Your Representative
+
+- [Wake County Commissioners](http://www.wakegov.com/commissioners/Pages/contact.aspx)
+
+- [Raleigh City Council](https://raleighnc.gov/city-council-office)
+
+- Other Wake County Municipalities
+
+  - Angier [Board of Commissioners](https://www.angier.org/board-commissioners) and [Manager](https://www.angier.org/town-manager)
+
+  - [Apex Town Council](https://www.apexnc.org/780/Meet-Your-Town-Council)
+
+  - [Cary Town Council](https://www.townofcary.org/mayor-council/town-council)
+
+  - Fuquay Varina [Board of Commissioners](https://www.fuquay-varina.org/317/Board-of-Commissioners) and [Manager](https://www.fuquay-varina.org/149/Administration)
+
+  - Garner [Town Council](https://www.garnernc.gov/government/town-council) and [Manager](https://www.garnernc.gov/government/town-manager)
+
+  - Holly Springs [Town Council](https://www.hollyspringsnc.us/143/Mayor-Town-Council) and [Manager](https://www.hollyspringsnc.us/65/Administration---Town-Manager)
+
+  - Knightdale [Town Council](https://www.knightdalenc.gov/government/town-council) and [Manager](https://www.knightdalenc.gov/departments/administration/town-manager)
+
+- Morrisville [Town Council](https://www.townofmorrisville.org/government/meet-your-town-council) and [Manager](https://www.townofmorrisville.org/government/departments-services/administration)
+
+  - Rolesville [Board of Commissioners](https://www.rolesvillenc.gov/boards-commissions) and [Manager](https://www.rolesvillenc.gov/town-manager)
+
+  - Wake Forest [Board of Commissioners](https://www.wakeforestnc.gov/board-commissioners) and [Manager](https://www.wakeforestnc.gov/administration)
+
+  - Wendell [Board of Commissioners](https://www.townofwendell.com/government/meet-the-board) and [Manager](https://www.townofwendell.com/departments/administration)
+
+  - Zebulon [Board of Commissioners](https://www.townofzebulon.org/government/board-commissioners) and [Manager](https://www.townofzebulon.org/services/administration/management-team)
