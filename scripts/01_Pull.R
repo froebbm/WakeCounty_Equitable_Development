@@ -1,33 +1,7 @@
-#### SetUp ####
+# Set Up ------------------------------------------------------------------
 source('./scripts/SetUp.R', echo = TRUE)
-#### Functions ####
-url_shp_to_sf <- function(URL) {
-  
-  require(sf)
-  
-  wd <- getwd()
-  td <- tempdir()
-  setwd(td)
-  
-  temp <- tempfile(fileext = ".zip")
-  download.file(URL, temp)
-  unzip(temp)
-  
-  shp <- dir(tempdir(), "*.shp$")
-  lyr <- sub(".shp$", "", shp)
-  
-  if(length(shp) > 1){
-    y <- read_sf(shp[1], quiet = TRUE)
-  } else {
-    y <- read_sf(shp, quiet = TRUE)
-    
-  }
 
-  unlink(dir(td))
-  setwd(wd)
-  return(y)
-}
-#### Data Pulls ####
+# Data Pull ---------------------------------------------------------------
 parcel_URL = paste0('ftp://wakeftp.co.wake.nc.us/gis/Webdownloads/',
                     'SHAPEFILES/Wake_Property_2020_10.zip')
 parcels  = url_shp_to_spdf(parcel_URL)

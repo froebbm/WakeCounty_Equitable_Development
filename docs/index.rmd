@@ -17,28 +17,41 @@ map_data  <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/map_data.rds")
 tab_data  <- read_csv("~/GitHub/WakeCounty_Affordable_Housing/data/Affordable_Area_by_Town.csv")
 parcels   <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/Parcels_October_2020.rds")
 parcels$area       <- as.numeric(st_area(parcels))
-my_pal    <- RColorBrewer::brewer.pal(10, "Purples") 
 ```
 
-# Land Suitable for Supportive Housing
+# Vacant Area Suitable For Supportive Housing by City
 
 ```{r Map, out.width="100%"}
 map_data %>% 
-  tm_shape() + tm_polygons(col = "affordable_area",
-                           n = 10,
-                           palette = my_pal,
-                           lwd = 0.1,
-                           title = "Square Footage")
+  tm_shape() + tm_polygons(col = "Vac_Proportion",
+                           palette = "Purples",
+                           breaks = c(0, 20, 30, 40, 50, 60, 100),
+                           labels = c("Less than 20%", "20% to 30%",
+                                      "30% to 40%", "40% to 50%",
+                                      "50% to 60%", "More than 60%"),
+                           lwd = 1,
+                           title = "Vacant Land Suitable for Supportive Housing",
+                           id = "JURISDICTI",
+                           popup.vars = c("JURISDICTI", "affordable_area" , 
+                                          "Tot_Proportion", "Vac_Proportion"),
+                           group = "Affordable Area",
+                           alpha = .8
+                           ) +
+  tm_basemap("OpenStreetMap.Mapnik")
 ```
 
 
 ```{r Table}
 tab_data %>% 
-  select(JURISDICTI, affordable_area) %>% 
-  mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
-                              JURISDICTI, 
-                              str_to_title(JURISDICTI))) %>% 
-  kable(col.names = c("City", "Supportive Housing Square Footage")) %>% 
+  select(JURISDICTI, affordable_area, vacant_area, area, 
+         Tot_Proportion, Vac_Proportion) %>% 
+  mutate(Tot_Proportion = round(Tot_Proportion, digits = 2), 
+         Vac_Proportion = round(Vac_Proportion, digits = 2)) %>% 
+  filter(JURISDICTI != "RDU" ) %>%
+  filter(JURISDICTI != "RTP" ) %>%  
+  kable(col.names = c("City", "Affordable Area", "Total Vacant Area", 
+                      "Total Area", "Percent of Total Area", 
+                      "Percent of Vacant Area")) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   scroll_box(height = "300px")
   
@@ -88,7 +101,7 @@ As we look towards the future of our community, please consider all options to c
 
   - Knightdale [Town Council](https://www.knightdalenc.gov/government/town-council) and [Manager](https://www.knightdalenc.gov/departments/administration/town-manager)
 
-- Morrisville [Town Council](https://www.townofmorrisville.org/government/meet-your-town-council) and [Manager](https://www.townofmorrisville.org/government/departments-services/administration)
+  - Morrisville [Town Council](https://www.townofmorrisville.org/government/meet-your-town-council) and [Manager](https://www.townofmorrisville.org/government/departments-services/administration)
 
   - Rolesville [Board of Commissioners](https://www.rolesvillenc.gov/boards-commissions) and [Manager](https://www.rolesvillenc.gov/town-manager)
 

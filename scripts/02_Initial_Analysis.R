@@ -36,21 +36,7 @@ vacant_parcels <- inner_join(parcels, exp_lu_join)
 # Joining Vacant to Municipalities and Agg --------------------------------
 municipalities <- read_rds("./data/Municipal_October_2020.rds")
 
-final_parcels <- st_join(vacant_parcels[c("geometry", "area", "exp_land_use")],
-                         municipalities[c("JURISDICTI", "geometry")], 
-                         join = st_within,
-                         left = TRUE)
-
-final_data <- final_parcels %>%
-  st_drop_geometry() %>% 
-  mutate(JURISDICTI = replace_na(JURISDICTI, "UNINCORPORATED")) %>%
-  filter(exp_land_use == "Residential") %>%
-  group_by(JURISDICTI) %>%
-  summarise(affordable_area = sum(area)) %>%
-  mutate(time = Sys.Date()) %>% 
-  write_csv("./data/Affordable_Area_by_Town.csv")
-
-wake_co <- read_sf("./data/Wake_Zoning_2020_10.shp") %>% 
+wake_co <- read_sf("./data/Wake_Zoning_2020_10.shp")  %>% 
   st_union() %>% 
   st_sf() %>% 
   transmute(ACRES      = NA,
@@ -62,12 +48,60 @@ wake_co <- read_sf("./data/Wake_Zoning_2020_10.shp") %>%
             LAST_EDI_1 = NA,
             SHAPE_AREA = NA,
             SHAPE_LEN  = NA)
+wake_co$SHAPE_AREA = as.numeric(st_area(wake_co))
 
-map_data <- rbind(municipalities, wake_co) %>% 
-  left_join(final_data) %>%
+Wake_Shapes <- rbind(municipalities, wake_co) %>% 
   mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
                               JURISDICTI, 
-                              str_to_title(JURISDICTI))) %>%
+                              str_to_title(JURISDICTI)))
+
+final_parcels <- st_join(vacant_parcels[c("geometry", "area", "exp_land_use")],
+                         municipalities[c("JURISDICTI", "geometry")], 
+                         join = st_within,
+                         left = TRUE)
+
+
+# Finding Total Area, Total Vacant Area, and TotalVacant Area Housing ------
+Total_Area <- st_drop_geometry(municipalities) %>% 
+  rbind(st_drop_geometry(wake_co)) %>% 
+  mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
+                              JURISDICTI, 
+                              str_to_title(JURISDICTI))) %>% 
+  group_by(JURISDICTI) %>%
+  summarise(area = sum(SHAPE_AREA)) 
+  
+Total_Affordable_Area <- final_parcels %>%
+  st_drop_geometry() %>% 
+  mutate(JURISDICTI = replace_na(JURISDICTI, "Wake County")) %>%
+  filter(exp_land_use == "Residential") %>%
+  group_by(JURISDICTI) %>%
+  summarise(affordable_area = sum(area)) %>%
+  mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
+                              JURISDICTI, 
+                              str_to_title(JURISDICTI))) 
+
+Total_Vacant_Area <- final_parcels %>% 
+  st_drop_geometry() %>% 
+  mutate(JURISDICTI = replace_na(JURISDICTI, "Wake County")) %>%
+  mutate(JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
+                              JURISDICTI, 
+                              str_to_title(JURISDICTI))) %>%  
+  group_by(JURISDICTI) %>%
+  summarise(vacant_area = sum(area)) 
+
+Area_Variables <- left_join(Total_Area, Total_Vacant_Area) %>% 
+  left_join(Total_Affordable_Area) %>% 
+  mutate(JURISDICTI = replace_na(JURISDICTI, "Wake County"),
+         JURISDICTI = if_else(JURISDICTI == "RDU" | JURISDICTI == "RTP",
+                              JURISDICTI, 
+                              str_to_title(JURISDICTI)),
+         Tot_Proportion = (affordable_area / area) * 100,
+         Vac_Proportion = (affordable_area / vacant_area)* 100) %>%
+  write_csv("./data/Affordable_Area_by_Town.csv")
+
+map_data <- left_join(Wake_Shapes, Area_Variables) %>% 
   write_rds("./data/map_data.rds")
+  
+
  
                          
