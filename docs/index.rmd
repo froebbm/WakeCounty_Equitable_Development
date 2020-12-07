@@ -13,10 +13,31 @@ library(viridis)
 library(kableExtra)
 options(scipen=999)
 tmap_mode("view")
-map_data  <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/map_data.rds") 
-tab_data  <- read_csv("~/GitHub/WakeCounty_Affordable_Housing/data/Affordable_Area_by_Town.csv")
-parcels   <- readRDS("~/GitHub/WakeCounty_Affordable_Housing/data/Parcels_October_2020.rds")
-parcels$area       <- as.numeric(st_area(parcels))
+
+# Date Values -------------------------------------------------------------
+current_date <- Sys.Date()
+
+month_chr  <- lubridate::month(current_date,
+                               label = TRUE,
+                               abbr  = FALSE) %>% 
+  as.character()
+
+month      <- lubridate::month(current_date, label = FALSE)
+
+year       <- lubridate::year(current_date) %>% 
+  as.character()
+
+map_path <- paste0("~/GitHub/WakeCounty_Affordable_Housing/data/map_data_",
+                   year, "_", month,".rds")
+tab_path <- paste0("~/GitHub/WakeCounty_Affordable_Housing/data/",
+                   "Affordable_Area_by_Town_", year, "_", month, ".csv")
+parcel_path <- paste0("~/GitHub/WakeCounty_Affordable_Housing/data/",
+                   "Parcels_", month_chr, "_", year, ".rds")
+  
+map_data  <- readRDS(map_path) 
+tab_data  <- read_csv(tab_path)
+parcels   <- readRDS(parcel_path)
+parcels$area <- as.numeric(st_area(parcels))
 ```
 
 # Vacant Area Suitable For Supportive Housing by City
@@ -57,6 +78,15 @@ tab_data %>%
   
 ```
 <br />
+
+This website was created to bring awareness to land vulnerable to inequitable development and encourage Wake County to choose people over profit when it comes to how this land is used. We offer the following demands in our accompanying petition, linked at the bottom of the page:
+
+1. The county allocate and dedicate a percentage of this unused land to supportive housing communities in its effort to combat homelessness
+
+2. Consult local community led organizations focused on fight for equitable development within their communities 
+
+3. Allow community members to vote on new development projects within the neighborhoods which they reside
+
 
 # Importance of Supportive Housing
 

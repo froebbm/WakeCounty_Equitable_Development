@@ -31,3 +31,15 @@ url_shp_to_sf <- function(URL) {
   setwd(wd)
   return(y)
 }
+# Date Values -------------------------------------------------------------
+current_date <- Sys.Date()
+
+month_chr  <- lubridate::month(current_date,
+                               label = TRUE,
+                               abbr  = FALSE) %>% 
+  as.character()
+
+month      <- lubridate::month(current_date, label = FALSE)
+
+year       <- lubridate::year(current_date) %>% 
+  as.character()

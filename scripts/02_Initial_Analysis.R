@@ -1,8 +1,11 @@
 # SetUp -------------------------------------------------------------------
-source('./scripts/SetUp.R', echo = TRUE)
+source('./scripts/00_setup.R', echo = TRUE)
 
 # Extracting Vacant -------------------------------------------------------
-parcels            <- read_rds("./data/Parcels_October_2020.rds")
+parcels_path       <- paste0("./data/Parcels_", month_chr, 
+                             "_", year, ".rds")
+
+parcels            <- read_rds(parcels_path)
 parcels$area       <- as.numeric(st_area(parcels))
 vacant_parcels     <- subset(st_centroid(parcels), 
                              parcels$LAND_CLASS == "VAC")
@@ -13,6 +16,9 @@ non_vacant_parcels$landuse <- if_else(non_vacant_parcels$SITE == 6100,
                                       true  = "Residential",
                                       false = "Non-Residential")
 
+out_path <- paste0("./data/vacant_join_", month_chr, 
+                   "_", year, ".rds")
+
 exp_lu_join <- st_join(vacant_parcels, 
                        non_vacant_parcels[c("PIN_NUM", "landuse", 
                                             "area",    "geometry")],
@@ -21,7 +27,7 @@ exp_lu_join <- st_join(vacant_parcels,
                        suffix = c("", "_org")
                        ) %>%
                st_drop_geometry() %>%
-               write_rds("./data/vacant_join_October_2020.rds")
+               write_rds(out_path)
 
 exp_lu_join <- 
   exp_lu_join %>%
@@ -34,9 +40,13 @@ exp_lu_join <-
 vacant_parcels <- inner_join(parcels, exp_lu_join)
 
 # Joining Vacant to Municipalities and Agg --------------------------------
-municipalities <- read_rds("./data/Municipal_October_2020.rds")
+munici_path    <- paste0("./data/Municipal_", month_chr, 
+                         "_", year, ".rds")
+municipalities <- read_rds(munici_path)
 
-wake_co <- read_sf("./data/Wake_Zoning_2020_10.shp")  %>% 
+wake_co_path <- paste0("./data/Wake_Zoning_", 
+                       month_chr, "_", year, ".shp")
+wake_co <- read_sf(wake_co_path)  %>% 
   st_union() %>% 
   st_sf() %>% 
   transmute(ACRES      = NA,
@@ -89,6 +99,8 @@ Total_Vacant_Area <- final_parcels %>%
   group_by(JURISDICTI) %>%
   summarise(vacant_area = sum(area)) 
 
+out_path <- paste0("./data/Affordable_Area_by_Town_",
+                   year, "_", month,".csv")
 Area_Variables <- left_join(Total_Area, Total_Vacant_Area) %>% 
   left_join(Total_Affordable_Area) %>% 
   mutate(JURISDICTI = replace_na(JURISDICTI, "Wake County"),
@@ -97,10 +109,12 @@ Area_Variables <- left_join(Total_Area, Total_Vacant_Area) %>%
                               str_to_title(JURISDICTI)),
          Tot_Proportion = (affordable_area / area) * 100,
          Vac_Proportion = (affordable_area / vacant_area)* 100) %>%
-  write_csv("./data/Affordable_Area_by_Town.csv")
+  write_csv(out_path)
 
+out_path <- paste0("./data/map_data_",
+                   year, "_", month,".rds")
 map_data <- left_join(Wake_Shapes, Area_Variables) %>% 
-  write_rds("./data/map_data.rds")
+  write_rds(out_path)
   
 
  
