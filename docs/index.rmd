@@ -1,5 +1,5 @@
 ---
-title: "Affordable Housing In Wake County"
+title: "Equitable Housing Development In Wake County"
 date: "Last Update on: `r Sys.Date()`"
 output: html_document
 ---
@@ -40,7 +40,7 @@ parcels   <- readRDS(parcel_path)
 parcels$area <- as.numeric(st_area(parcels))
 ```
 
-# Vacant Area Suitable For Supportive Housing by City
+# Vacant Area Suitable For Housing Development by City
 
 ```{r Map, out.width="100%"}
 map_data %>% 
@@ -85,10 +85,10 @@ This website was created to bring awareness to land vulnerable to inequitable de
 
 2. Consult local community led organizations focused on fight for equitable development within their communities 
 
-3. Allow community members to vote on new development projects within the neighborhoods which they reside
+3. Allow community members to vote on new development projects within their neighborhoods.
 
 
-# Importance of Supportive Housing
+## Importance of Equitable Housing Development and Supportive Housing
 
 Wake County and its encompassed communities are growing rapidly. It is widely considered to be one of the [fastest growing areas](http://www.wakegov.com/data/bythenumbers/Pages/default.aspx#:~:text=Wake%20County%20gained%20an%20average,population%20growth%20in%20Wake%20County) in the state of NC. This growth is exciting- but only if managed in such a way that we protect our most vulnerable citizens. With rapid growth comes rapid increase of [housing costs, gentrification, and displacement](https://www.urbandisplacement.org/sites/default/files/images/udp_research_brief_052316.pdf).
 
@@ -108,6 +108,7 @@ Funding for this can come from a variety of sources, for which we offer the foll
 
 As we look towards the future of our community, please consider all options to create an inclusive and just community for all, rather than another American city descending into deeper class divides and gentrification. We are open to working further with you on this to reach viable solutions.
 
+## [Sign the Petition](https://www.change.org/p/wake-county-board-of-commissioners-prevent-gentrification-in-wake-county?recruiter=41219806&utm_source=share_petition&utm_medium=facebook&utm_campaign=share_petition&recruited_by_id=2869cc60-5702-0130-868d-38ac6f16d25f&utm_content=fht-26328336-en-us%3A2)
 
 ## Contact Your Representative
 

@@ -1,4 +1,4 @@
-# Wake County Affordable Housing
+# Wake County Equitable Development
 
 This doc will reflect the scope of the project the use of the code etc.
 
